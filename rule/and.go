@@ -90,3 +90,17 @@ func (r and) Validate(input string, from, to int, fromLeft bool, rules Rules) (R
 		SubRulesMatched: subRulesMatched,
 	}, nil
 }
+
+func (r and) GetError(rules Rules) error {
+	if r.center < 0 || r.center >= len(r.rules) {
+		return ErrAndCenterInvalid
+	}
+
+	for _, rule := range r.rules {
+		if err := rule.GetError(rules); err != nil {
+			return err
+		}
+	}
+
+	return nil
+}

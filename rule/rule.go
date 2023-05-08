@@ -1,5 +1,7 @@
 package rule
 
+import "fmt"
+
 type RuleType string
 
 var (
@@ -18,25 +20,21 @@ type RuleResult struct {
 
 type Rule interface {
 	Validate(input string, from, to int, fromRight bool, rules Rules) (RuleResult, error)
+	GetError(rules Rules) error
 }
 
 type Rules map[string]Rule
 
 func getSubstring(s string, from, to int) (string, error) {
-	// TODO: check if invalid.
+	if from < 0 || to > len(s) {
+		return "", fmt.Errorf(
+			"%w: from: %v to: %v length s: %v",
+			ErrInvalidFromTo,
+			from,
+			to,
+			len(s),
+		)
+	}
 
 	return string([]rune(s)[from:to]), nil
 }
-
-/*
-parseRules = rule.Rules{
-	"main" : rule.Name("expression")
-	"expression" : rule.Or(rule.Name("number"), rule.Name("plus"))
-	"number" : rule.Match("5")
-	"plus" : rule.Match("+")
-}
-
-
-[ruleName: "or"]
-5
-*/

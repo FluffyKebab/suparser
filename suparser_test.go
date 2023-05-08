@@ -59,12 +59,12 @@ func TestMatch(t *testing.T) {
 				},
 			},
 		},
-		/* {
+		{
 			rules: simpleCalculatorRules,
 			text:  "5+5",
 			expected: suparser.Node{
 				Name: "main",
-				Text: "6380box2",
+				Text: "5+5",
 				SubNodes: []suparser.Node{
 					{
 						Name: "expression",
@@ -77,6 +77,29 @@ func TestMatch(t *testing.T) {
 									{
 										Name: "expression",
 										Text: "5",
+										SubNodes: []suparser.Node{
+											{
+												Name:     "number",
+												Text:     "5",
+												SubNodes: []suparser.Node{},
+											},
+										},
+									},
+									{
+										Name:     "binaryOperator",
+										Text:     "+",
+										SubNodes: []suparser.Node{},
+									},
+									{
+										Name: "expression",
+										Text: "5",
+										SubNodes: []suparser.Node{
+											{
+												Name:     "number",
+												Text:     "5",
+												SubNodes: []suparser.Node{},
+											},
+										},
 									},
 								},
 							},
@@ -84,7 +107,7 @@ func TestMatch(t *testing.T) {
 					},
 				},
 			},
-		}, */
+		},
 	}
 
 	for _, tc := range testCases {

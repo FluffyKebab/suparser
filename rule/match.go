@@ -1,7 +1,6 @@
 package rule
 
 import (
-	"fmt"
 	"regexp"
 )
 
@@ -22,9 +21,11 @@ func MatchWithWholeText() MatchOption {
 }
 
 type match struct {
-	regex         string
+	text          string
+	regex         *regexp.Regexp
 	useRegex      bool
 	withWholeText bool
+	err           error
 }
 
 var _ Rule = match{}
@@ -32,7 +33,7 @@ var _ Rule = match{}
 // Match creates an rule that validates if the toMatch string is found in the text.
 func Match(toMatch string, opts ...MatchOption) match {
 	r := match{
-		regex: toMatch,
+		text: toMatch,
 	}
 
 	for _, opt := range opts {
@@ -40,12 +41,14 @@ func Match(toMatch string, opts ...MatchOption) match {
 	}
 
 	if !r.useRegex {
-		r.regex = regexp.QuoteMeta(r.regex)
+		r.text = regexp.QuoteMeta(r.text)
 	}
 
 	if r.withWholeText {
-		r.regex = "^" + r.regex + "$"
+		r.text = "^" + r.text + "$"
 	}
+
+	r.regex, r.err = regexp.Compile(r.text)
 
 	return r
 }
@@ -56,12 +59,7 @@ func (r match) Validate(input string, from, to int, fromRight bool, rules Rules)
 		return RuleResult{}, err
 	}
 
-	re, err := regexp.Compile(r.regex)
-	if err != nil {
-		return RuleResult{}, fmt.Errorf("%w: %w", ErrInvalidRegex, err)
-	}
-
-	allMatchedIndexes := re.FindAllIndex([]byte(inputToMatch), -1)
+	allMatchedIndexes := r.regex.FindAllIndex([]byte(inputToMatch), -1)
 	if len(allMatchedIndexes) == 0 {
 		return RuleResult{}, nil
 	}
@@ -76,4 +74,8 @@ func (r match) Validate(input string, from, to int, fromRight bool, rules Rules)
 		From:     from + correctMatchedIndexes[0],
 		To:       from + correctMatchedIndexes[1],
 	}, nil
+}
+
+func (r match) GetError(_ Rules) error {
+	return r.err
 }

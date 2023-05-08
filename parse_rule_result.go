@@ -1,6 +1,9 @@
 package suparser
 
-import "suparser/rule"
+import (
+	"fmt"
+	"suparser/rule"
+)
 
 func parseRuleResult(text string, ruleResult rule.RuleResult) ([]Node, error) {
 	subNodes := make([]Node, 0, len(ruleResult.SubRulesMatched))
@@ -32,7 +35,15 @@ func parseRuleResult(text string, ruleResult rule.RuleResult) ([]Node, error) {
 }
 
 func getSubstring(s string, from, to int) (string, error) {
-	// TODO: check if invalid.
+	if from < 0 || to > len(s) {
+		return "", fmt.Errorf(
+			"%w: from: %v to: %v length s: %v",
+			ErrInvalidFromTo,
+			from,
+			to,
+			len(s),
+		)
+	}
 
 	return string([]rune(s)[from:to]), nil
 }

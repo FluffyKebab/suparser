@@ -22,3 +22,13 @@ func (r or) Validate(input string, from, to int, fromRight bool, rules Rules) (R
 
 	return RuleResult{}, nil
 }
+
+func (r or) GetError(rules Rules) error {
+	for _, rule := range r.subRules {
+		if err := rule.GetError(rules); err != nil {
+			return err
+		}
+	}
+
+	return nil
+}

@@ -26,10 +26,9 @@ type Parser struct {
 
 // New returns a new parser with the rules given.
 func New(rules rule.Rules) (Parser, error) {
-	// TODO: check errors.
 	return Parser{
 		rules: rules,
-	}, nil
+	}, getErrors(rules)
 }
 
 func (p Parser) Parse(text string) (Node, error) {

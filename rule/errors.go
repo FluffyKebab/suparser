@@ -3,6 +3,8 @@ package rule
 import "errors"
 
 var (
-	ErrRuleNotDefined = errors.New("rule not defined")
-	ErrInvalidRegex   = errors.New("invalid regex")
+	ErrAndCenterInvalid = errors.New("invalid center in and")
+	ErrRuleNotDefined   = errors.New("rule not defined")
+	ErrInvalidRegex     = errors.New("invalid regex")
+	ErrInvalidFromTo    = errors.New("invalid from to")
 )

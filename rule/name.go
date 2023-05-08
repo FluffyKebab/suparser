@@ -13,11 +13,7 @@ func Name(ruleName string) name {
 }
 
 func (r name) Validate(input string, from, to int, fromRight bool, rules Rules) (RuleResult, error) {
-	ruleToMatch, ok := rules[r.ruleName]
-	if !ok {
-		return RuleResult{}, ErrRuleNotDefined
-	}
-
+	ruleToMatch := rules[r.ruleName]
 	result, err := ruleToMatch.Validate(input, from, to, fromRight, rules)
 	if err != nil {
 		return RuleResult{}, err
@@ -34,4 +30,12 @@ func (r name) Validate(input string, from, to int, fromRight bool, rules Rules) 
 		To:              result.To,
 		SubRulesMatched: []RuleResult{result},
 	}, nil
+}
+
+func (r name) GetError(rules Rules) error {
+	if _, ok := rules[r.ruleName]; !ok {
+		return ErrRuleNotDefined
+	}
+
+	return nil
 }
