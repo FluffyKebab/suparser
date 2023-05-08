@@ -8,19 +8,28 @@ import (
 // MatchOption is a function type for modifying a match rule.
 type MatchOption func(*match)
 
+// MatchWithRegex returns a MatchOption that specifies that regex can be used.
 func MatchWithRegex() MatchOption {
 	return func(m *match) {
 		m.useRegex = true
 	}
 }
 
+func MatchWithWholeText() MatchOption {
+	return func(m *match) {
+		m.withWholeText = true
+	}
+}
+
 type match struct {
-	regex    string
-	useRegex bool
+	regex         string
+	useRegex      bool
+	withWholeText bool
 }
 
 var _ Rule = match{}
 
+// Match creates an rule that validates if the toMatch string is found in the text.
 func Match(toMatch string, opts ...MatchOption) match {
 	r := match{
 		regex: toMatch,
@@ -34,10 +43,14 @@ func Match(toMatch string, opts ...MatchOption) match {
 		r.regex = regexp.QuoteMeta(r.regex)
 	}
 
+	if r.withWholeText {
+		r.regex = "^" + r.regex + "$"
+	}
+
 	return r
 }
 
-func (r match) Validate(input string, from, to int, fromLeft bool, rules Rules) (RuleResult, error) {
+func (r match) Validate(input string, from, to int, fromRight bool, rules Rules) (RuleResult, error) {
 	inputToMatch, err := getSubstring(input, from, to)
 	if err != nil {
 		return RuleResult{}, err
@@ -54,7 +67,7 @@ func (r match) Validate(input string, from, to int, fromLeft bool, rules Rules) 
 	}
 
 	correctMatchedIndexes := allMatchedIndexes[0]
-	if fromLeft {
+	if fromRight {
 		correctMatchedIndexes = allMatchedIndexes[len(allMatchedIndexes)-1]
 	}
 

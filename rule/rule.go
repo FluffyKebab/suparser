@@ -17,7 +17,7 @@ type RuleResult struct {
 }
 
 type Rule interface {
-	Validate(input string, from, to int, fromLeft bool, rules Rules) (RuleResult, error)
+	Validate(input string, from, to int, fromRight bool, rules Rules) (RuleResult, error)
 }
 
 type Rules map[string]Rule

@@ -13,7 +13,7 @@ var _ Rule = and{}
 // For example And(Match("+"), Match("-")) will only validate the string "+-". All rules
 // have to be validate for the and to be validated. And(Match("++"), Match("-")) will
 // for example not validate the string "-+-++" because it will find the "++" first and
-// there are no "-" to the left of it.
+// there are no "-" to the right of it.
 func And(subRules ...Rule) and {
 	return and{
 		rules:  subRules,
@@ -21,6 +21,20 @@ func And(subRules ...Rule) and {
 	}
 }
 
+// AndWithCenter creates an and rule with a specified center. The center must be an index
+// in the rules given, and the rule with the center index will be found first. Rules to the
+// left of the center rule will be found from the left, witch means that the leftmost match
+// is used. The opposite is true for the rules to the right of the center.
+//
+// AndWithCenter can for example to find a binary operator in an expression. Lets say that
+// that we have the rule "AndWithCenter(1, Name("expression"), Name("binaryOperator"),
+// Name("expression"))" and that the rule with the name "expression" validates numbers
+// or the AndWithCenter rule, and that the rule with the name "binaryOperator" validates
+// standard mathematical operators. Then the rule would validate strings like "34+6-1".
+// Firstly, since the center is specified as the second rule, the plus symbol is found by
+// the "binaryOperator" rule. Then the 34 to the left it is validated because it is a number.
+// Because the AndWithCenter rule is a part of the rule with the name "expression", the minus
+// will be fond first by and afterwards the thu numbers will be found.
 func AndWithCenter(center int, subRules ...Rule) and {
 	return and{
 		rules:  subRules,
@@ -28,6 +42,9 @@ func AndWithCenter(center int, subRules ...Rule) and {
 	}
 }
 
+// Validate validates if the input strings follows the and rule from "from" to "to". If fromLeft
+// is true, the center will be the rightmost match of the center rule. Otherwise it will be the
+// leftmost.
 func (r and) Validate(input string, from, to int, fromLeft bool, rules Rules) (RuleResult, error) {
 	subRulesMatched := make([]RuleResult, len(r.rules))
 
@@ -37,27 +54,27 @@ func (r and) Validate(input string, from, to int, fromLeft bool, rules Rules) (R
 	}
 	subRulesMatched[r.center] = result
 
-	left := result.From
+	right := result.From
 	for i := r.center - 1; i >= 0; i-- {
-		if left <= from {
+		if right < from {
 			return RuleResult{}, nil
 		}
 
-		curResult, err := r.rules[i].Validate(input, from, left, true /* find from left */, rules)
+		curResult, err := r.rules[i].Validate(input, from, right, true /* find from right */, rules)
 		if err != nil || curResult.RuleType == "" {
 			return RuleResult{}, err
 		}
 		subRulesMatched[i] = curResult
-		left = curResult.From
+		right = curResult.From
 	}
 
-	right := result.To
+	left := result.To
 	for i := r.center + 1; i < len(r.rules); i++ {
 		if left >= to {
 			return RuleResult{}, nil
 		}
 
-		curResult, err := r.rules[i].Validate(input, right, to, false /* find from right */, rules)
+		curResult, err := r.rules[i].Validate(input, left, to, false /* find from left */, rules)
 		if err != nil || curResult.RuleType == "" {
 			return RuleResult{}, err
 		}
@@ -67,19 +84,9 @@ func (r and) Validate(input string, from, to int, fromLeft bool, rules Rules) (R
 	}
 
 	return RuleResult{
-		From:            from,
-		To:              to,
+		From:            right,
+		To:              left,
 		RuleType:        AndType,
 		SubRulesMatched: subRulesMatched,
 	}, nil
 }
-
-/*
-Rules{
-	"main": rule.Name("expression"),
-	"expression": rule.Or(rule.Name("binaryOperation"), rule.Name("number"),
-	"binaryOperation": rule.AndWithCenter(1, rule.Name("expression"), rule.Name("binaryOperator"), rule.Name("expression")),
-	"binaryOperator": rule.Or(rule.FindFirst("*", "/"), rule.FindFirst("+", "-"")),
-	"number": rule.Match("\d+"),
-}
-*/

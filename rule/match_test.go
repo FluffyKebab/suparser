@@ -11,13 +11,13 @@ func TestMatch(t *testing.T) {
 	t.Parallel()
 
 	testCases := []struct {
-		input    string
-		rules    rule.Rules
-		from     int
-		to       int
-		expected rule.RuleResult
-		fromLeft bool
-		err      error
+		input     string
+		rules     rule.Rules
+		from      int
+		to        int
+		expected  rule.RuleResult
+		fromRight bool
+		err       error
 	}{
 		{
 			input: "+-",
@@ -73,7 +73,7 @@ func TestMatch(t *testing.T) {
 				From:     14,
 				To:       15,
 			},
-			fromLeft: true,
+			fromRight: true,
 		},
 		{
 			input: "fo5 ba b3r fo 12 za",
@@ -85,12 +85,12 @@ func TestMatch(t *testing.T) {
 				From:     14,
 				To:       16,
 			},
-			fromLeft: true,
+			fromRight: true,
 		},
 	}
 
 	for _, tc := range testCases {
-		output, err := tc.rules["main"].Validate(tc.input, tc.from, tc.to, tc.fromLeft, tc.rules)
+		output, err := tc.rules["main"].Validate(tc.input, tc.from, tc.to, tc.fromRight, tc.rules)
 		assert.Equal(t, tc.err, err)
 		assert.Equal(t, tc.expected, output)
 	}

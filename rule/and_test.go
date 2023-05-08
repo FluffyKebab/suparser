@@ -55,8 +55,8 @@ func TestAnd(t *testing.T) {
 			to:       14,
 			expected: rule.RuleResult{
 				RuleType: rule.AndType,
-				From:     1,
-				To:       14,
+				From:     7,
+				To:       11,
 				SubRulesMatched: []rule.RuleResult{
 					{
 						RuleType: rule.MatchType,
@@ -79,8 +79,8 @@ func TestAnd(t *testing.T) {
 			to:       14,
 			expected: rule.RuleResult{
 				RuleType: rule.AndType,
-				From:     1,
-				To:       14,
+				From:     4,
+				To:       11,
 				SubRulesMatched: []rule.RuleResult{
 					{
 						RuleType: rule.MatchType,
