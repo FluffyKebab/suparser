@@ -14,6 +14,8 @@ func MatchWithRegex() MatchOption {
 	}
 }
 
+// MatchWithWholeText returns a MatchOption that adds "^" to the start and "$" to the
+// end such that the rule only validates if the input text contains the whole text.
 func MatchWithWholeText() MatchOption {
 	return func(m *match) {
 		m.withWholeText = true
@@ -30,7 +32,7 @@ type match struct {
 
 var _ Rule = match{}
 
-// Match creates an rule that validates if the toMatch string is found in the text.
+// Match creates an rule that validates if the match string is found in the text.
 func Match(toMatch string, opts ...MatchOption) match {
 	r := match{
 		text: toMatch,

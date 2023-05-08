@@ -6,6 +6,8 @@ type name struct {
 
 var _ Rule = name{}
 
+// Name creates a rule that validates if the rule with the name given
+// validates. The rule name given must be a rule in the rules.
 func Name(ruleName string) name {
 	return name{
 		ruleName: ruleName,

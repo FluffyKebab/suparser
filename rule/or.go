@@ -6,6 +6,9 @@ type or struct {
 
 var _ Rule = or{}
 
+// Or creates a rule that validates if one of the sub rules validates. The
+// or rule searches from left to right, so the leftmost rule that validates
+// will be the result used.
 func Or(subRules ...Rule) or {
 	return or{
 		subRules: subRules,
